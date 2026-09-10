@@ -36,7 +36,7 @@ fun SplashScreen(
         Image(
             painter = painterResource(id = R.drawable.rivo_logo_green_v2),
             contentDescription = "ShramSetu Logo",
-            modifier = Modifier.size(350.dp)
+            modifier = Modifier.size(400.dp)
         )
     }
 }
