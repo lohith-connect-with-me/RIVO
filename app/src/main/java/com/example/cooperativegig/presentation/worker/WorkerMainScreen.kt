@@ -19,19 +19,46 @@ import com.example.cooperativegig.presentation.auth.AuthViewModel
 import com.example.cooperativegig.presentation.worker.home.WorkerDashboardScreen
 import com.example.cooperativegig.presentation.worker.profile.WorkerProfileScreen
 
-sealed class WorkerBottomNavItem(val route: String, val title: String, val icon: @Composable () -> Unit) {
-    object Dashboard : WorkerBottomNavItem("work_dashboard", "Dashboard", { Icon(Icons.Default.Home, contentDescription = "Dashboard") })
-    object Profile : WorkerBottomNavItem("work_profile", "Profile & Welfare", { Icon(Icons.Default.Person, contentDescription = "Profile") })
+sealed class WorkerBottomNavItem(
+    val route: String,
+    val title: String,
+    val icon: @Composable () -> Unit
+) {
+    object Dashboard : WorkerBottomNavItem(
+        "work_dashboard",
+        "Dashboard",
+        {
+            Icon(
+                Icons.Default.Home,
+                contentDescription = "Dashboard"
+            )
+        }
+    )
+
+    object Profile : WorkerBottomNavItem(
+        "work_profile",
+        "Profile & Welfare",
+        {
+            Icon(
+                Icons.Default.Person,
+                contentDescription = "Profile"
+            )
+        }
+    )
 }
 
 @Composable
 fun WorkerMainScreen(
     authViewModel: AuthViewModel,
     onNavigateToVerification: () -> Unit,
+    onNavigateToAdminLogin: () -> Unit,
     onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
-    val workerViewModel: WorkerViewModel = viewModel(factory = WorkerViewModelFactory())
+
+    val workerViewModel: WorkerViewModel =
+        viewModel(factory = WorkerViewModelFactory())
+
     val navItems = listOf(
         WorkerBottomNavItem.Dashboard,
         WorkerBottomNavItem.Profile
@@ -40,19 +67,31 @@ fun WorkerMainScreen(
     Scaffold(
         bottomBar = {
             NavigationBar {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
+
+                val navBackStackEntry by
+                navController.currentBackStackEntryAsState()
+
+                val currentRoute =
+                    navBackStackEntry?.destination?.route
 
                 navItems.forEach { item ->
+
                     NavigationBarItem(
                         icon = item.icon,
-                        label = { Text(item.title) },
+                        label = {
+                            Text(item.title)
+                        },
                         selected = currentRoute == item.route,
+
                         onClick = {
                             navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
+
+                                popUpTo(
+                                    navController.graph.findStartDestination().id
+                                ) {
                                     saveState = true
                                 }
+
                                 launchSingleTop = true
                                 restoreState = true
                             }
@@ -62,21 +101,29 @@ fun WorkerMainScreen(
             }
         }
     ) { innerPadding: PaddingValues ->
+
         NavHost(
             navController = navController,
             startDestination = WorkerBottomNavItem.Dashboard.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+
+            // Worker Dashboard
             composable(WorkerBottomNavItem.Dashboard.route) {
+
                 WorkerDashboardScreen(
                     viewModel = workerViewModel
                 )
             }
+
+            // Worker Profile
             composable(WorkerBottomNavItem.Profile.route) {
+
                 WorkerProfileScreen(
                     authViewModel = authViewModel,
                     workerViewModel = workerViewModel,
                     onNavigateToVerification = onNavigateToVerification,
+                    onNavigateToAdminLogin = onNavigateToAdminLogin,
                     onLogout = onLogout
                 )
             }

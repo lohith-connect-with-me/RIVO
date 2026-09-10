@@ -49,7 +49,9 @@ class AuthRepository {
                         eq("id", userId)
                     }
                 }
-                result.decodeSingleOrNull<Profile>()
+                result.decodeSingleOrNull<Profile>()?.copy(
+                    email = supabase.auth.currentUserOrNull()?.email
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
                 throw e
@@ -79,7 +81,10 @@ class AuthRepository {
                         eq("id", userId)
                     }
                 }
-                result.decodeSingleOrNull<Profile>()
+                result.decodeSingleOrNull<Profile>()?.copy(
+                    email = supabase.auth.currentUserOrNull()?.email
+
+                )
             } catch (e: Exception) {
                 null
             }

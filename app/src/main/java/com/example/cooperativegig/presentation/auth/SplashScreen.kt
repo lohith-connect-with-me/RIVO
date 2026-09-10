@@ -1,49 +1,42 @@
 package com.example.cooperativegig.presentation.auth
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.example.cooperativegig.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    viewModel: AuthViewModel,
-    onNavigateToLogin: () -> Unit,
-    onNavigateToCustomerHome: () -> Unit,
-    onNavigateToWorkerHome: () -> Unit
+    onNavigateToOnboarding: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.checkSession()
+
+        // Keep logo visible for 2 seconds
+        delay(2000)
+
+        onNavigateToOnboarding()
     }
 
-    LaunchedEffect(uiState) {
-        when (uiState) {
-            is AuthUiState.Authenticated -> {
-                val role = (uiState as AuthUiState.Authenticated).profile.role
-                if (role == "WORKER") {
-                    onNavigateToWorkerHome()
-                } else {
-                    onNavigateToCustomerHome()
-                }
-            }
-            is AuthUiState.Unauthenticated -> {
-                onNavigateToLogin()
-            }
-            else -> {}
-        }
-    }
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
+        Image(
+            painter = painterResource(id = R.drawable.rivo_logo_green_v2),
+            contentDescription = "ShramSetu Logo",
+            modifier = Modifier.size(350.dp)
+        )
     }
 }

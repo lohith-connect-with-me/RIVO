@@ -2,13 +2,19 @@ package com.example.cooperativegig.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class Profile(
     val id: String,
     val role: String,
+
     @SerialName("first_name")
     val firstName: String? = null,
+
     @SerialName("last_name")
-    val lastName: String? = null
+    val lastName: String? = null,
+
+    @Transient
+    val email: String? = null
 )

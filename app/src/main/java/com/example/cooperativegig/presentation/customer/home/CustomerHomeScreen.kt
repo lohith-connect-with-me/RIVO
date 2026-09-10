@@ -46,6 +46,7 @@ val sampleWorkers = listOf(
 @Composable
 fun CustomerHomeScreen(
     viewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory()),
+    userName: String = "Guest",
     onServiceClick: (Long) -> Unit,
     onEmergencyClick: () -> Unit,
     onWorkerClick: (String) -> Unit = {},
@@ -64,7 +65,7 @@ fun CustomerHomeScreen(
     ) {
         // Top Header Bar
         StrataHeader(
-            userName = "Nandan",
+            userName = userName,
             location = "Sector 4, Dwarka, New Delhi",
             onLocationClick = { onLocationClick() },
             onNotificationClick = onNotificationClick,
@@ -102,7 +103,9 @@ fun CustomerHomeScreen(
                     actionLabel = "All Categories",
                     onActionClick = { }
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(horizontal = 4.dp)
@@ -141,10 +144,14 @@ fun CustomerHomeScreen(
                         }
                     }
                 }
+
                 is HomeUiState.Success -> {
                     val filteredServices = state.services.filter {
                         it.name.contains(searchQuery, ignoreCase = true) ||
-                                (it.description?.contains(searchQuery, ignoreCase = true) == true)
+                                (it.description?.contains(
+                                    searchQuery,
+                                    ignoreCase = true
+                                ) == true)
                     }
 
                     if (filteredServices.isEmpty()) {
@@ -163,6 +170,7 @@ fun CustomerHomeScreen(
                         }
                     }
                 }
+
                 is HomeUiState.Error -> {
                     item {
                         ErrorState(
@@ -181,7 +189,9 @@ fun CustomerHomeScreen(
                     actionLabel = "View Map",
                     onActionClick = onNearbyMapClick
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(horizontal = 4.dp)

@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.example.cooperativegig.presentation.auth.AuthUiState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -17,6 +18,12 @@ import com.example.cooperativegig.presentation.auth.AuthViewModel
 import com.example.cooperativegig.presentation.customer.booking.BookingHistoryScreen
 import com.example.cooperativegig.presentation.customer.home.CustomerHomeScreen
 import com.example.cooperativegig.presentation.customer.profile.CustomerProfileScreen
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 
 sealed class CustomerBottomNavItem(val route: String, val title: String, val icon: @Composable () -> Unit) {
     object Home : CustomerBottomNavItem("cust_home", "Home", { Icon(Icons.Default.Home, contentDescription = "Home") })
@@ -27,6 +34,7 @@ sealed class CustomerBottomNavItem(val route: String, val title: String, val ico
 @Composable
 fun CustomerMainScreen(
     authViewModel: AuthViewModel,
+    isGuest: Boolean = false,
     onNavigateToServiceDetail: (Long) -> Unit,
     onNavigateToWorkerDetail: (String) -> Unit = {},
     onNavigateToEmergencyBooking: () -> Unit,
@@ -46,6 +54,14 @@ fun CustomerMainScreen(
         CustomerBottomNavItem.Bookings,
         CustomerBottomNavItem.Profile
     )
+    val authState by authViewModel.uiState.collectAsState()
+
+    val userName = when (val state = authState) {
+        is AuthUiState.Authenticated -> {
+            state.profile.email ?: "Guest"
+        }
+        else -> "Guest"
+    }
 
     Scaffold(
         bottomBar = {
@@ -79,6 +95,7 @@ fun CustomerMainScreen(
         ) {
             composable(CustomerBottomNavItem.Home.route) {
                 CustomerHomeScreen(
+                    userName = userName,
                     onServiceClick = onNavigateToServiceDetail,
                     onEmergencyClick = onNavigateToEmergencyBooking,
                     onWorkerClick = onNavigateToWorkerDetail,
@@ -87,7 +104,9 @@ fun CustomerMainScreen(
                     onNotificationClick = onNavigateToNotifications,
                     onProfileClick = {
                         navController.navigate(CustomerBottomNavItem.Profile.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }
@@ -101,7 +120,9 @@ fun CustomerMainScreen(
                     },
                     onExploreServicesClick = {
                         navController.navigate(CustomerBottomNavItem.Home.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }
@@ -109,22 +130,50 @@ fun CustomerMainScreen(
                 )
             }
             composable(CustomerBottomNavItem.Profile.route) {
-                CustomerProfileScreen(
-                    authViewModel = authViewModel,
-                    onEditProfileClick = onNavigateToEditProfile,
-                    onSavedAddressesClick = onNavigateToSavedAddresses,
-                    onBookingHistoryClick = {
-                        navController.navigate(CustomerBottomNavItem.Bookings.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
+                if (isGuest) {
+                    Column(
+                        modifier = Modifier.padding(24.dp)
+                    ) {
+                        Text(
+                            text = "Login Required",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = "Please login or register to access your profile."
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Button(
+                            onClick = onLogout,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Login / Register")
                         }
-                    },
-                    onSavedWorkersClick = onNavigateToSavedWorkers,
-                    onMyReviewsClick = onNavigateToCustomerReviews,
-                    onSettingsClick = onNavigateToSettingsPreferences,
-                    onLogout = onLogout
-                )
+                    }
+                } else {
+                    CustomerProfileScreen(
+                        authViewModel = authViewModel,
+                        onEditProfileClick = onNavigateToEditProfile,
+                        onSavedAddressesClick = onNavigateToSavedAddresses,
+                        onBookingHistoryClick = {
+                            navController.navigate(CustomerBottomNavItem.Bookings.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        onSavedWorkersClick = onNavigateToSavedWorkers,
+                        onMyReviewsClick = onNavigateToCustomerReviews,
+                        onSettingsClick = onNavigateToSettingsPreferences,
+                        onLogout = onLogout
+                    )
+                }
             }
         }
     }

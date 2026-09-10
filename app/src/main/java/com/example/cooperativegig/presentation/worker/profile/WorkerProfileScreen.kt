@@ -22,6 +22,7 @@ fun WorkerProfileScreen(
     authViewModel: AuthViewModel,
     workerViewModel: WorkerViewModel,
     onNavigateToVerification: () -> Unit,
+    onNavigateToAdminLogin: () -> Unit,
     onLogout: () -> Unit
 ) {
     val uiState by workerViewModel.uiState.collectAsStateWithLifecycle()
@@ -91,6 +92,15 @@ fun WorkerProfileScreen(
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedButton(
+            onClick = onNavigateToAdminLogin,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("🔐 Cooperative Admin")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         Button(
             onClick = {
